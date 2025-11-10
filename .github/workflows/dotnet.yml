@@ -1,0 +1,97 @@
+name: .NET Core CI
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+  workflow_dispatch:
+    inputs:
+      logLevel:
+        description: 'Log level'
+        required: true
+        default: 'warning'
+        type: choice
+        options:
+        - info
+        - warning
+        - debug
+      tags:
+        description: 'Test scenario tags'
+        required: false
+        type: boolean
+      environment:
+        description: 'Environment to run tests against'
+        type: environment
+        required: false
+
+jobs:
+  contract-test:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 9.0.x
+
+    - name: Restore dependencies
+      run: dotnet restore
+
+    - name: Build
+      run: dotnet build --no-restore
+
+    - name: Test with Coverage
+      run: dotnet test --no-build --verbosity normal --collect:"XPlat Code Coverage" /p:CollectCoverage=true --results-directory ./TestResults
+      env:
+        COVERLET_OUTPUT_FORMAT: cobertura
+
+    - name: Save Specmatic license
+      run: |
+        mkdir -p ~/.specmatic
+        echo "${{ secrets.SPECMATIC_LICENSE_KEY }}" > ~/.specmatic/specmatic-license.txt
+
+    - name: Run Specmatic Insights Build Reporter
+      run: |
+        docker run \
+          -v ${{ github.workspace }}:/workspace \
+          -v ~/.specmatic:/root/.specmatic \
+          -w /workspace/specmatic-uuid-api-test \
+          specmatic/specmatic-reporter \
+          send-report \
+          --metadata build_url=${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }} \
+          --branch-name ${{ github.ref_name }} \
+          --repo-name ${{ github.event.repository.name }} \
+          --repo-id ${{ github.repository_id }} \
+          --repo-url ${{ github.event.repository.html_url }}
+
+    - name: Publish Code Coverage Report
+      uses: irongut/CodeCoverageSummary@v1.3.0
+      with:
+        filename: "TestResults/*/coverage.cobertura.xml"
+        badge: true
+        fail_below_min: false 
+        format: markdown
+        hide_branch_rate: false
+        hide_complexity: false
+        indicators: true
+        output: file
+        thresholds: "60 80"
+
+    - name: Upload Code Coverage Results
+      uses: actions/upload-artifact@v4
+      with:
+       name: code-coverage-results
+       path: code-coverage-results.md
+
+    - name: Display Coverage Summary in Workflow UI
+      run: |
+        echo "Code Coverage Summary" >> $GITHUB_STEP_SUMMARY
+        cat code-coverage-results.md >> $GITHUB_STEP_SUMMARY
+    
+    - name: Upload HTML Test Report
+      uses: actions/upload-artifact@v4
+      with:
+        name: html-report
+        path: specmatic-uuid-api-test/build/reports/specmatic/html

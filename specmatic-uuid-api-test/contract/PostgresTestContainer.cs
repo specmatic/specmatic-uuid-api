@@ -1,8 +1,5 @@
 using DotNet.Testcontainers.Builders;
 using Testcontainers.PostgreSql;
-using Xunit;
-using System;
-using System.Threading.Tasks;
 
 namespace specmatic_uuid_api_test.contract
 {
@@ -20,14 +17,14 @@ namespace specmatic_uuid_api_test.contract
                 .WithUsername("dotnet")
                 .WithPassword("dotNet1234")
                 .WithPortBinding(5432, 5432) // Bind container port 5432 to host port 5432
-                .WithWaitStrategy(Wait.ForUnixContainer().UntilPortIsAvailable(5432))
+                .WithWaitStrategy(Wait.ForUnixContainer().UntilExternalTcpPortIsAvailable(5432))
                 .WithCleanUp(true) // Auto-remove container after tests
                 .Build();
         }
 
         public async Task InitializeAsync()
         {
-            await _postgresContainer.StartAsync();
+            await _postgresContainer.StartAsync().ConfigureAwait(true);
             Console.WriteLine($"PostgreSQL Test Container started at: {_postgresContainer.GetConnectionString()}");
         }
 

@@ -18,8 +18,9 @@ namespace specmatic_uuid_api_test.contract
         {
             await RunContractTests();
             Assert.NotNull(_specmaticTestContainer);
+            var exit = await _specmaticTestContainer.GetExitCodeAsync();
             var logs = await _specmaticTestContainer.GetLogsAsync();
-            if (!logs.Stdout.Contains("Failures: 0"))
+            if (exit != 0 || !logs.Stdout.Contains("Failures: 0"))
             {
                 Assert.Fail("There are failing tests, please refer to build/reports/specmatic/html/index.html for more details");
             }
@@ -58,16 +59,16 @@ namespace specmatic_uuid_api_test.contract
             Directory.CreateDirectory(localReportDirectory);
 
             _specmaticTestContainer = new ContainerBuilder()
-                .WithImage("znsio/specmatic")
+                .WithImage("specmatic/specmatic")
                 .WithCommand("test").WithCommand("--port=8080").WithCommand("--host=host.docker.internal")
                 .WithOutputConsumer(Consume.RedirectStdoutAndStderrToConsole())
-                .WithWaitStrategy(Wait.ForUnixContainer().UntilMessageIsLogged("Tests run:"))
                 .WithBindMount(localReportDirectory, $"{TestContainerDirectory}/build/reports")
                 .WithBindMount($"{testDirectory}/specmatic.yaml", $"{TestContainerDirectory}/specmatic.yaml")
                 .WithBindMount($"{testDirectory}/uuid.openapi.yaml", $"{TestContainerDirectory}/uuid.openapi.yaml")
+                .WithExtraHost("host.docker.internal", "host-gateway")
                 .Build();
 
-            await _specmaticTestContainer.StartAsync();
+            await _specmaticTestContainer.StartAsync().ConfigureAwait(true);
         }
 
         private Process UuidServiceProcess()

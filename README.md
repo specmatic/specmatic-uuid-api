@@ -5,12 +5,7 @@
 ### Start Postgres
 
 ```shell
-docker run --rm \
-    -e POSTGRES_DB=specmatic_uuid_db \
-    -e POSTGRES_USER=dotnet \
-    -e POSTGRES_PASSWORD=dotNet1234 \
-    -p 5432:5432 \
-    postgres:17
+docker run --rm -e POSTGRES_DB=specmatic_uuid_db -e POSTGRES_USER=dotnet -e POSTGRES_PASSWORD=dotNet1234 -p 5432:5432 postgres:17
 ```
 
 ### Start the Service
