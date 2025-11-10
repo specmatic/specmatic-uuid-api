@@ -35,7 +35,6 @@ services:
     volumes:
       - ./specmatic-uuid-api-test/build/reports:/usr/src/app/build/reports
       - ./specmatic-uuid-api-test/specmatic.yaml:/usr/src/app/specmatic.yaml
-      - ./specmatic-uuid-api-test/uuid.openapi.yaml:/usr/src/app/uuid.openapi.yaml
     command: ["test", "--port=8080", "--host=api"]
     depends_on:
       - api

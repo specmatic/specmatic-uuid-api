@@ -1,5 +1,7 @@
 version: 2
 contracts:
-  - filesystem:
+  - git:
+      branch: main
+      url: https://github.com/specmatic/specmatic-order-contracts.git
     provides:
-      - uuid.openapi.yaml
+      - io/specmatic/examples/store/openapi/api_uuid_v1.yaml

@@ -64,7 +64,6 @@ namespace specmatic_uuid_api_test.contract
                 .WithOutputConsumer(Consume.RedirectStdoutAndStderrToConsole())
                 .WithBindMount(localReportDirectory, $"{TestContainerDirectory}/build/reports")
                 .WithBindMount($"{testDirectory}/specmatic.yaml", $"{TestContainerDirectory}/specmatic.yaml")
-                .WithBindMount($"{testDirectory}/uuid.openapi.yaml", $"{TestContainerDirectory}/uuid.openapi.yaml")
                 .WithExtraHost("host.docker.internal", "host-gateway")
                 .Build();
 
