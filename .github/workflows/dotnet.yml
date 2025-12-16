@@ -39,6 +39,12 @@ jobs:
     - name: Restore dependencies
       run: dotnet restore
 
+    - name: Save Specmatic license
+      if: github.ref == 'refs/heads/main'
+      run: |
+        mkdir -p ~/.specmatic
+        echo "${{ secrets.SPECMATIC_LICENSE_KEY }}" > ~/.specmatic/specmatic-license.txt
+
     - name: Build
       run: dotnet build --no-restore
 
@@ -47,12 +53,9 @@ jobs:
       env:
         COVERLET_OUTPUT_FORMAT: cobertura
 
-    - name: Save Specmatic license
-      run: |
-        mkdir -p ~/.specmatic
-        echo "${{ secrets.SPECMATIC_LICENSE_KEY }}" > ~/.specmatic/specmatic-license.txt
 
     - name: Run Specmatic Insights Build Reporter
+      if: github.ref == 'refs/heads/main'
       run: |
         docker run \
           -v ${{ github.workspace }}/specmatic-uuid-api-test:/usr/src/app \
