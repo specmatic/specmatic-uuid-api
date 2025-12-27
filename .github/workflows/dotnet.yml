@@ -29,10 +29,10 @@ jobs:
   contract-test:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
 
     - name: Setup .NET
-      uses: actions/setup-dotnet@v4
+      uses: actions/setup-dotnet@v5
       with:
         dotnet-version: 9.0.x
 
@@ -82,7 +82,7 @@ jobs:
         thresholds: "60 80"
 
     - name: Upload Code Coverage Results
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v6
       with:
        name: code-coverage-results
        path: code-coverage-results.md
@@ -93,7 +93,7 @@ jobs:
         cat code-coverage-results.md >> $GITHUB_STEP_SUMMARY
     
     - name: Upload HTML Test Report
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v6
       with:
         name: html-report
         path: specmatic-uuid-api-test/build/reports/specmatic/html
