@@ -34,8 +34,20 @@ namespace specmatic_uuid_api_test.contract
 
         public async Task DisposeAsync()
         {
+            var pid = GetProcessIdByPort(8080);
+            if (pid > 0)
+            {
+                var process =  Process.GetProcessById(_uuidServiceProcess.Id);
+                process.Kill();
+                process.Dispose();
+            }
             _uuidServiceProcess.Kill();
-            if (_specmaticTestContainer != null) await _specmaticTestContainer.DisposeAsync();
+            _uuidServiceProcess.Dispose();
+            if (_specmaticTestContainer != null)
+            { 
+                await _specmaticTestContainer.StopAsync(); 
+                await _specmaticTestContainer.DisposeAsync();
+            }
         }
 
         public ContractTest()
@@ -86,6 +98,28 @@ namespace specmatic_uuid_api_test.contract
             };
 
             return appProcess;
+        }
+
+        private static int GetProcessIdByPort(int port)
+        {
+            var fileName = OperatingSystem.IsWindows() ? "netstat" : "lsof";
+            var arguments = OperatingSystem.IsWindows() 
+                ? $"-ano | findstr :{port}" 
+                : $"-i :{port} -t";
+
+            using var process = Process.Start(new ProcessStartInfo
+            {
+                FileName = fileName,
+                Arguments = arguments,
+                RedirectStandardOutput = true,
+                UseShellExecute = false,
+                CreateNoWindow = true
+            });
+
+            var output = process?.StandardOutput.ReadToEnd().Trim();
+            process?.WaitForExit();
+
+            return int.TryParse(output, out int pid) ? pid : -1;
         }
     }
 }
