@@ -1,7 +1,33 @@
-version: 2
-contracts:
-  - git:
-      branch: main
-      url: https://github.com/specmatic/specmatic-order-contracts.git
-    provides:
-      - io/specmatic/examples/store/openapi/api_uuid_v1.yaml
+version: 3
+systemUnderTest:
+  service:
+    $ref: "#/components/services/uuidApiService"
+    runOptions:
+      $ref: "#/components/runOptions/uuidApiServiceTest"
+specmatic:
+  governance:
+    report:
+      formats:
+        - html
+    successCriteria:
+      minCoveragePercentage: 70
+      maxMissedOperationsInSpec: 4
+      enforce: true
+components:
+  sources:
+    specsRepo:
+      git:
+        url: https://github.com/specmatic/specmatic-order-contracts.git
+  services:
+    uuidApiService:
+      definitions:
+        - definition:
+            source:
+              $ref: "#/components/sources/specsRepo"
+            specs:
+              - io/specmatic/examples/store/openapi/api_uuid_v1.yaml
+  runOptions:
+    uuidApiServiceTest:
+      openapi:
+        type: test
+        baseUrl: ${APP_URL:http://localhost:8080}

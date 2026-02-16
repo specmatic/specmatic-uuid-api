@@ -12,6 +12,8 @@ namespace specmatic_uuid_api_test.contract
         private const string TestContainerDirectory = "/usr/src/app";
         private readonly string apiDirectory;
         private readonly string testDirectory;
+        private static readonly string Pwd =
+        Directory.GetParent(Directory.GetCurrentDirectory())?.Parent?.Parent?.FullName ?? string.Empty;
 
         [Fact]
         public async Task ContractTestsAsync()
@@ -60,10 +62,10 @@ namespace specmatic_uuid_api_test.contract
 
             _specmaticTestContainer = new ContainerBuilder()
                 .WithImage("specmatic/specmatic")
-                .WithCommand("test").WithCommand("--port=8080").WithCommand("--host=host.docker.internal")
+                .WithCommand("test")
+                .WithEnvironment("APP_URL", "http://host.docker.internal:8080")
                 .WithOutputConsumer(Consume.RedirectStdoutAndStderrToConsole())
-                .WithBindMount(localReportDirectory, $"{TestContainerDirectory}/build/reports")
-                .WithBindMount($"{testDirectory}/specmatic.yaml", $"{TestContainerDirectory}/specmatic.yaml")
+                .WithBindMount($"{Pwd}",$"{TestContainerDirectory}")
                 .WithExtraHost("host.docker.internal", "host-gateway")
                 .Build();
 
