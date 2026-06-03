@@ -96,4 +96,4 @@ jobs:
       uses: actions/upload-artifact@v6
       with:
         name: html-report
-        path: specmatic-uuid-api-test/build/reports/specmatic/html
+        path: specmatic-uuid-api-test/build/reports/specmatic/test/html

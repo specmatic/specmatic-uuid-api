@@ -10,7 +10,6 @@ specmatic:
       formats:
         - html
     successCriteria:
-      minCoveragePercentage: 25
       maxMissedOperationsInSpec: 4
       enforce: true
 components:

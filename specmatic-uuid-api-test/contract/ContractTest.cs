@@ -24,7 +24,7 @@ namespace specmatic_uuid_api_test.contract
             var logs = await _specmaticTestContainer.GetLogsAsync();
             if (exit != 0 || !logs.Stdout.Contains("Failures: 0"))
             {
-                Assert.Fail("There are failing tests, please refer to build/reports/specmatic/html/index.html for more details");
+                Assert.Fail("There are failing tests, please refer to build/reports/specmatic/test/html/index.html for more details");
             }
         }
 
